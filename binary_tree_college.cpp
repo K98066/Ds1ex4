@@ -157,6 +157,14 @@ void readData(Data *&data, const char *filename) {
     infile.close();
 }
 
+void printInOrder(Tree* tree) {
+    if (tree != NULL) {
+        printInOrder(tree->left_college);
+        cout << tree->college.schoolID << endl;
+        printInOrder(tree->right_college);
+    }
+}
+
 int main()
 {
     Data *all_data = NULL;
