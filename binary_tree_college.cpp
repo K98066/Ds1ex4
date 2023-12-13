@@ -187,37 +187,64 @@ int calculateTreeHeight(Tree* tree) {
     }
 }
 
-void searchAndPrintLesser(Tree* tree, int value) {
+void searchAndPrintMore(Tree* tree, int value, int& count) {
     if (tree == NULL) {
         return;
     }
 
     // 如果節點值比指定值小，則印出並繼續搜尋左子樹
-    if (tree->college.graduate_count < value) {
-        cout << tree->college.graduate_count << " ";
-        searchAndPrintLesser(tree->left_college, value);
+    if (tree->college.graduate_count > value) {
+    	count++;
+    	//  lots to print!! 
+        cout << '[' << count << "]\t" << tree->college.school_name
+		<< '\t' << tree->college.subject_name << '\t' << tree->college.day_or_night_e
+		<< ' ' << tree->college.day_or_night_c << '\t' << tree->college.level_e
+		<< ' ' << tree->college.level_c << '\t' << tree->college.student_count
+		<< '\t' << tree->college.teacher_count << '\t' << tree->college.graduate_count << endl; 
+        searchAndPrintMore(tree->left_college, value, count);
     }
 
     // 搜尋右子樹
-    searchAndPrintLesser(tree->right_college, value);
+    searchAndPrintMore(tree->right_college, value, count);
 }
 
-void searchAndPrintSame(Tree* tree, Str40 name) {
+void searchAndPrintSame(Tree* tree, Str40 name, int& count) {
     if (tree == NULL) {
         return;
     }
 	if ( strcmp(tree->college.school_name, name) == 0 ) {
-		cout << tree->college.school_name; 
+		cout << '[' << count << "]\t" << tree->college.school_name
+		<< '\t' << tree->college.subject_name << '\t' << tree->college.day_or_night_e
+		<< ' ' << tree->college.day_or_night_c << '\t' << tree->college.level_e
+		<< ' ' << tree->college.level_c << '\t' << tree->college.student_count
+		<< '\t' << tree->college.teacher_count << '\t' << tree->college.graduate_count << endl; 
 	}
     // 如果節點值比指定值小，則印出並繼續搜尋左子樹
     else if ( strcmp(tree->college.school_name, name) < 0 ) {
-        searchAndPrintSame(tree->left_college, name);
+        searchAndPrintSame(tree->left_college, name, count);
     }
 
     // 搜尋右子樹
-    searchAndPrintSame(tree->right_college, name);
+    searchAndPrintSame(tree->right_college, name, count);
 }
 
+void deleteTree(Tree* node) {
+    if (node == NULL)
+        return;
+
+    // Delete the left and right subtrees
+    deleteTree(node->left_college);
+    deleteTree(node->right_college);
+
+    // Delete the current node
+    delete node;
+}
+
+// Call this function with the root of the tree
+void deleteEntireTree(Tree* root) {
+    deleteTree(root);
+    root = NULL; // Set the root to null to indicate that the tree is deleted
+}
 
 int main() {
 	
@@ -254,7 +281,10 @@ int main() {
     		readData(all_data,fileName.c_str());
 
     		Data *temp = all_data;
-
+    		
+    		deleteEntireTree(g_tree_top);
+    		deleteEntireTree(n_tree_top);
+    		
     		while (temp != NULL)
     		{
     			Tree *add_tree = new Tree;
@@ -287,7 +317,11 @@ int main() {
 				int graduate;
 				cout << "Input the number of graduates:";
 				cin >> graduate;
-				searchAndPrintLesser(g_tree_top, graduate);
+				int count = 0;
+				searchAndPrintMore(g_tree_top, graduate, count);
+				if (count == 0) {
+					cout << "There is no match!" << endl;
+				} 
 			}		
 		}
 		else if(command == 3) {
@@ -297,10 +331,13 @@ int main() {
 			else {
 				Str40 school_name;
 				cout << "Input the number of graduates:";
-				cin >> school_name;;
-				searchAndPrintSame(n_tree_top, school_name);
+				cin >> school_name;
+				int count = 0;
+				searchAndPrintSame(n_tree_top, school_name, count);
+				if (count == 0) {
+					cout << "There is no match!" << endl;
+				}
 			}		
 		}
 	}
 }
-
