@@ -1,3 +1,5 @@
+//  DS1ex3  27  11020117林子皓  11020134呂宗凱 
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -92,14 +94,14 @@ void NamesortTree(Tree *&tree, Tree *add) {
     
     Tree *temp = tree;
     while (true) {
-        if (add->college.school_name < tree->college.school_name) {
+        if (strcmp(add->college.school_name, temp->college.school_name) < 0) {
             if (temp->left_college == NULL) {
                 temp->left_college = add;
                 break;
             } else {
                 temp = temp->left_college;
             }
-        } else if (add->college.school_name > tree->college.school_name) {
+        } else if (strcmp(add->college.school_name, temp->college.school_name) > 0) {
             if (temp->right_college == NULL) {
                 temp->right_college = add;
                 break;
@@ -125,6 +127,14 @@ void AddLinkedList(Data *&data, Data *addData)
 
 void readData(Data *&data, const char *filename) {
     ifstream infile(filename);
+
+    std::string line;
+    int linesToSkip = 4;  // 指定要跳過的行數
+
+    // 跳過開頭指定行數
+    for (int i = 0; i < linesToSkip; ++i) {
+        std::getline(infile, line);
+    }
 
     if (!infile) {
         cout << "Error opening file." << endl;
@@ -177,37 +187,120 @@ int calculateTreeHeight(Tree* tree) {
     }
 }
 
-
-int main()
-{
-    Data *all_data = NULL;
-    if (all_data == NULL) readData(all_data, "input.txt");
-
-	Tree *n_tree_top = NULL;
-    Tree *g_tree_top = NULL;
-    Data *temp = all_data;
-
-    while (temp != NULL)
-    {
-    	Tree *add_tree = new Tree;
-        add_tree->college = temp->college;
-        IDsortTree(g_tree_top, add_tree);
-        temp = temp->next;
+void searchAndPrintLesser(Tree* tree, int value) {
+    if (tree == NULL) {
+        return;
     }
 
-	temp = all_data;
-	
-	while (temp != NULL) {
-    	Tree *add_tree = new Tree;
-        add_tree->college = temp->college;
-        NamesortTree(n_tree_top, add_tree);
-        temp = temp->next;
-	}
+    // 如果節點值比指定值小，則印出並繼續搜尋左子樹
+    if (tree->college.graduate_count < value) {
+        cout << tree->college.graduate_count << " ";
+        searchAndPrintLesser(tree->left_college, value);
+    }
 
-	int g_treeHeight = calculateTreeHeight(g_tree_top);
-    cout << "Binary Tree Height: " << g_treeHeight << endl;
-    int n_treeHeight = calculateTreeHeight(n_tree_top);
-    cout << "Binary Tree Height: " << n_treeHeight << endl;
-	
-    return 0;
+    // 搜尋右子樹
+    searchAndPrintLesser(tree->right_college, value);
 }
+
+void searchAndPrintSame(Tree* tree, Str40 name) {
+    if (tree == NULL) {
+        return;
+    }
+	if ( strcmp(tree->college.school_name, name) == 0 ) {
+		cout << tree->college.school_name; 
+	}
+    // 如果節點值比指定值小，則印出並繼續搜尋左子樹
+    else if ( strcmp(tree->college.school_name, name) < 0 ) {
+        searchAndPrintSame(tree->left_college, name);
+    }
+
+    // 搜尋右子樹
+    searchAndPrintSame(tree->right_college, name);
+}
+
+
+int main() {
+	
+	int command;
+	Tree *n_tree_top = NULL;
+	Tree *g_tree_top = NULL;
+	
+	while (true) {
+		cout << "\n";
+    	cout << "*** University Graduate Information System ***\n";
+    	cout << "* 0. Quit                                    *\n";
+    	cout << "* 1. Create Two Binary Search Trees          *\n";
+    	cout << "* 2. Search by Number of Graduates           *\n";
+    	cout << "* 3. Search by School Name                   *\n";
+    	cout << "* 4. Removal by Number of Graduates          *\n";
+    	cout << "**********************************************\n";
+    	cout << "Input a command(0, 1-4): ";
+    	cin >> command;
+		
+		if (command == 0) {
+			return 0;
+		}
+		else if (command == 1) {
+			cout << "\nInput a file number:";
+			
+    		std::string fileName;
+    		// 從使用者輸入中讀取檔案編號
+    		cin >> fileName;
+
+    		// 組合檔案名稱	 ex:"input401.txt"
+			fileName = "input" + fileName + ".txt";
+			
+			Data *all_data = NULL;
+    		readData(all_data,fileName.c_str());
+
+    		Data *temp = all_data;
+
+    		while (temp != NULL)
+    		{
+    			Tree *add_tree = new Tree;
+        		add_tree->college = temp->college;
+        		IDsortTree(g_tree_top, add_tree);
+        		temp = temp->next;
+    		}
+
+			temp = all_data;
+	
+			while (temp != NULL) {
+    			Tree *add_tree = new Tree;
+        		add_tree->college = temp->college;
+        		NamesortTree(n_tree_top, add_tree);
+        		temp = temp->next;
+			}
+			
+    		int n_treeHeight = calculateTreeHeight(n_tree_top);
+    		cout << "Tree Height{School name}: " << n_treeHeight << endl;
+			int g_treeHeight = calculateTreeHeight(g_tree_top);
+    		cout << "Tree Height{Number of graduates}: " << g_treeHeight << endl;
+
+		}
+		else if(command == 2) {
+			
+			if (n_tree_top == NULL) {
+				cout << "Please enter command 1 first!";
+			}
+			else {
+				int graduate;
+				cout << "Input the number of graduates:";
+				cin >> graduate;
+				searchAndPrintLesser(g_tree_top, graduate);
+			}		
+		}
+		else if(command == 3) {
+			if (n_tree_top == NULL) {
+				cout << "Please enter command 1 first!";
+			}
+			else {
+				Str40 school_name;
+				cout << "Input the number of graduates:";
+				cin >> school_name;;
+				searchAndPrintSame(n_tree_top, school_name);
+			}		
+		}
+	}
+}
+
