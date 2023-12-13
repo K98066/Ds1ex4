@@ -246,6 +246,33 @@ void deleteEntireTree(Tree* root) {
     root = NULL; // Set the root to null to indicate that the tree is deleted
 }
 
+// 刪除比給定數字小的節點
+Tree* deleteSmallerNodes(Tree* tree, int value, int count) {
+    if (tree == NULL) {
+        return NULL;
+    }
+
+    // 如果節點的數值小於給定數字，刪除該節點
+    if (tree->college.graduate_count < value) {
+    	
+    	cout << '[' << count << "]\t" << tree->college.school_name
+		<< '\t' << tree->college.subject_name << '\t' << tree->college.day_or_night_e
+		<< ' ' << tree->college.day_or_night_c << '\t' << tree->college.level_e
+		<< ' ' << tree->college.level_c << '\t' << tree->college.student_count
+		<< '\t' << tree->college.teacher_count << '\t' << tree->college.graduate_count << endl;
+    	
+        Tree* temp = tree;
+        tree = tree->right_college;
+        delete temp;
+    } else {
+        // 遞迴刪除左子樹和右子樹中比給定數字小的節點
+        tree->left_college = deleteSmallerNodes(tree->left_college, value, count);
+        tree->right_college = deleteSmallerNodes(tree->right_college, value, count);
+    }
+
+    return tree;
+}
+
 int main() {
 	
 	int command;
@@ -338,6 +365,21 @@ int main() {
 					cout << "There is no match!" << endl;
 				}
 			}		
+		}
+		else if(command == 4) {
+			int graduate;
+			cout << "Input the number of graduates:";
+			cin >> graduate;
+			
+			int count = 0;
+			deleteSmallerNodes(n_tree_top, graduate, count);
+			count = 0;
+			deleteSmallerNodes(g_tree_top, graduate, count);		
+			
+			int n_treeHeight = calculateTreeHeight(n_tree_top);
+    		cout << "Tree Height{School name}: " << n_treeHeight << endl;
+			int g_treeHeight = calculateTreeHeight(g_tree_top);
+    		cout << "Tree Height{Number of graduates}: " << g_treeHeight << endl;
 		}
 	}
 }
